@@ -48,6 +48,7 @@ public class FongCalculate {
         
         RealVector reflectDir = reflect(lightDir.mapMultiply(-1), normal);
         double specularFactor = Math.pow(Math.max(0, reflectDir.dotProduct(viewDir)), shininess);
+
         double specularR = specularCoeff * specularColor.getRed()/255.0 * specularFactor;
         double specularG = specularCoeff * specularColor.getGreen()/255.0 * specularFactor;
         double specularB = specularCoeff * specularColor.getBlue()/255.0 * specularFactor;
@@ -59,7 +60,7 @@ public class FongCalculate {
         return new Color(r, g, b);
     }
 
-    private static RealVector reflect(RealVector L, RealVector N) {
+    public static RealVector reflect(RealVector L, RealVector N) {
         return L.subtract(N.mapMultiply(2 * L.dotProduct(N)));
     }
 }

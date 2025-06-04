@@ -1,7 +1,9 @@
 package akg.view;
 
 import akg.model.canvas.CanvasObj;
+import akg.model.cubemap.CubeMap;
 import akg.model.obj.ObjData;
+import akg.parser.CubeMapParser;
 import akg.parser.ObjParser;
 
 import javax.swing.*;
@@ -34,6 +36,12 @@ public class Holst extends JPanel {
             canvas.elements.clear();
             canvas.addElement(c);
             canvas.choosenElement=c;
+            canvas.repaint();
+        });
+        toolBar.directoryChooserBack=(x->
+        {
+            CubeMap cubeMap = CubeMapParser.parseCubeMp(x);
+            canvas.setCubeMap(cubeMap);
             canvas.repaint();
         });
         toolBar.modesChooserBack=(x->

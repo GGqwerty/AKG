@@ -118,6 +118,56 @@ public class MtlParser {
                             material.map_Ke = ImageIO.read(new File(b.toString()));
                         }
                         break;
+                    case "map_Ns":
+                        if(material!=null) {
+                            b=new StringBuilder(directory+"\\");
+                            for(int i =1; i< elements.length; i++)
+                            {
+                                b.append(elements[i]).append(" ");
+                            }
+                            material.map_Ns = ImageIO.read(new File(b.toString()));
+                        }
+                        break;
+                    case "map_Pm":
+                        if(material!=null) {
+                            b=new StringBuilder(directory+"\\");
+                            for(int i =1; i< elements.length; i++)
+                            {
+                                b.append(elements[i]).append(" ");
+                            }
+                            material.map_Pm = ImageIO.read(new File(b.toString()));
+                        }
+                        break;
+                    case "map_Pr":
+                        if(material!=null) {
+                            b=new StringBuilder(directory+"\\");
+                            for(int i =1; i< elements.length; i++)
+                            {
+                                b.append(elements[i]).append(" ");
+                            }
+                            material.map_Pr = ImageIO.read(new File(b.toString()));
+                        }
+                        break;
+                    case "map_Pao":
+                        if(material!=null) {
+                            b=new StringBuilder(directory+"\\");
+                            for(int i =1; i< elements.length; i++)
+                            {
+                                b.append(elements[i]).append(" ");
+                            }
+                            material.map_Pao = ImageIO.read(new File(b.toString()));
+                        }
+                        break;
+                    case "map_MRAO":
+                        if(material!=null) {
+                            b=new StringBuilder(directory+"\\");
+                            for(int i =1; i< elements.length; i++)
+                            {
+                                b.append(elements[i]).append(" ");
+                            }
+                            material.map_MRAO = ImageIO.read(new File(b.toString()));
+                        }
+                        break;
                     case "norm":
                     case "map_Bump":
                         if(material!=null) {

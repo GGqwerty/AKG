@@ -1,6 +1,7 @@
 package akg.model.canvas;
 
 import akg.model.math.FaceTriangulation;
+import akg.model.math.MatrixTransform;
 import akg.model.math.TriangleFace;
 import akg.model.mtl.MtlData;
 import akg.model.obj.Face;
@@ -16,8 +17,7 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
 
-import static akg.model.light.FongCalculate.computePhongLighting;
-import static akg.model.light.FongCalculate.shadePoint;
+import static akg.model.light.FongCalculate.*;
 import static akg.model.math.FaceTriangulation.addNormals;
 import static akg.model.math.MatrixTransform.*;
 import static akg.model.math.Geometry.*;
@@ -89,7 +89,7 @@ public class CanvasObj extends CanvasElement {
 
         RealMatrix view = calculateViewTransform(xAxis, yAxis, zAxis, eye);
         //////////////////////////////////
-        //RealMatrix projection = calculateProjectionOrtoTransform(w, h, 1, 1000);
+        //RealMatrix projection = calculateProjectionOrtoTransform(w, h, zNear, zFar);
         RealMatrix projection = calculateProjectionPerspecTransform(w, h, zNear, zFar);
         //////////////////////////////////
         RealMatrix viewport = calculateViewportTransform(w, h, 0, 0);
@@ -284,50 +284,107 @@ public class CanvasObj extends CanvasElement {
                             int yT = (int) ((1 - texturePoint.getEntry(1)) * textures.materials.get(0).map_Kd.getHeight());
                             objectColor = new Color(textures.materials.get(0).map_Kd.getRGB(xT, yT));
                         }
+                        RealVector normal = MatrixTransform.crossProduct(a.subtract(b).getSubVector(0, 3), a.subtract(c).getSubVector(0, 3));
                         if(textures.materials.get(0).map_Bump!=null) {
                             int xN = (int) (texturePoint.getEntry(0) * textures.materials.get(0).map_Bump.getWidth());
-                            int yN = (int) ((1-texturePoint.getEntry(1)) * textures.materials.get(0).map_Bump.getHeight());
+                            int yN = (int) ((1 - texturePoint.getEntry(1)) * textures.materials.get(0).map_Bump.getHeight());
                             Color normalColor = new Color(textures.materials.get(0).map_Bump.getRGB(xN, yN));
-
-                            RealVector eVector = textures.materials.get(0).Ke.mapMultiply(255);
-                            Color eColor = new Color((int) eVector.getEntry(0), (int) eVector.getEntry(1), (int) eVector.getEntry(2));
-                            RealVector dVector = textures.materials.get(0).Kd.mapMultiply(255);
-                            Color dColor = new Color((int) dVector.getEntry(0), (int) dVector.getEntry(1), (int) dVector.getEntry(2));
-                            RealVector sVector = textures.materials.get(0).Ks.mapMultiply(255);
-                            Color sColor = new Color((int) sVector.getEntry(0), (int) sVector.getEntry(1), (int) sVector.getEntry(2));
-                            RealVector normal = new ArrayRealVector(new double[]
+                            normal = new ArrayRealVector(new double[]
                                     {
                                             colorToNormal(normalColor.getRed()),
                                             colorToNormal(normalColor.getGreen()),
                                             colorToNormal(normalColor.getBlue())
                                     });
                             normal = transformationWorld.operate(normal.append(0.0)).getSubVector(0, 3);
+                        }
+                            RealVector eVector = textures.materials.get(0).Ke.mapMultiply(255);
+                            Color eColor = new Color((int) eVector.getEntry(0), (int) eVector.getEntry(1), (int) eVector.getEntry(2));
+                            RealVector dVector = textures.materials.get(0).Kd.mapMultiply(255);
+                            Color dColor = new Color((int) dVector.getEntry(0), (int) dVector.getEntry(1), (int) dVector.getEntry(2));
+                            RealVector sVector = textures.materials.get(0).Ks.mapMultiply(255);
+                            Color sColor = new Color((int) sVector.getEntry(0), (int) sVector.getEntry(1), (int) sVector.getEntry(2));
                             double ns = textures.materials.get(0).Ns;
-                            double specularCoef = 1;
-                            if(textures.materials.get(0).map_Ks!=null)
+                            if(textures.materials.get(0).map_Ke!=null)
                             {
-                                specularCoef = textures.materials.get(0).map_Ks.getRGB(
-                                        (int) (texturePoint.getEntry(0) * textures.materials.get(0).map_Ks.getWidth()),
-                                        (int) ((1-texturePoint.getEntry(1)) * textures.materials.get(0).map_Ks.getHeight())
+                                eColor = new Color(textures.materials.get(0).map_Ke.getRGB(
+                                        (int) (texturePoint.getEntry(0) * textures.materials.get(0).map_Ke.getWidth()),
+                                        (int) ((1-texturePoint.getEntry(1)) * textures.materials.get(0).map_Ke.getHeight()))
                                 );
                             }
+                            if(textures.materials.get(0).map_Kd!=null)
+                            {
+                                dColor = new Color(textures.materials.get(0).map_Kd.getRGB(
+                                        (int) (texturePoint.getEntry(0) * textures.materials.get(0).map_Kd.getWidth()),
+                                        (int) ((1-texturePoint.getEntry(1)) * textures.materials.get(0).map_Kd.getHeight()))
+                                );
+                            }
+                            if(textures.materials.get(0).map_Ks!=null)
+                            {
+                                sColor = new Color(textures.materials.get(0).map_Ks.getRGB(
+                                        (int) (texturePoint.getEntry(0) * textures.materials.get(0).map_Ks.getWidth()),
+                                        (int) ((1-texturePoint.getEntry(1)) * textures.materials.get(0).map_Ks.getHeight()))
+                                );
+                            }
+                            if(textures.materials.get(0).map_Ns!=null)
+                            {
+                                ns = textures.materials.get(0).map_Ns.getRGB(
+                                        (int) (texturePoint.getEntry(0) * textures.materials.get(0).map_Ns.getWidth()),
+                                        (int) ((1-texturePoint.getEntry(1)) * textures.materials.get(0).map_Ns.getHeight())
+                                );
+                            }
+
+                            double metalness = 0.0;
+                            double roughness = 0.0;
+                            double ambientOcclusion = 0.0;
+                            if(textures.materials.get(0).map_MRAO!=null)
+                            {
+                                Color buf = new Color(textures.materials.get(0).map_MRAO.getRGB(
+                                        (int) (texturePoint.getEntry(0) * textures.materials.get(0).map_MRAO.getWidth()),
+                                        (int) ((1-texturePoint.getEntry(1)) * textures.materials.get(0).map_MRAO.getHeight())
+                                ));
+                                metalness = buf.getRed()/255.0;
+                                roughness = buf.getGreen()/255.0;
+                                ambientOcclusion=buf.getBlue()/255.0;
+                            }
+                            if(cubeMap!=null)
+                            {
+                                RealVector eyeS = reflect(eye, normal).mapMultiply(-1);
+                                sColor = cubeMap.cubeMapSample(eyeS);
+                            }
                             Color color1 = Color.BLACK;
-                            for (Lamp lamp : lamps) {
+                            if(cubeMap==null) {
+                                for (Lamp lamp : lamps) {
+                                    Color buf = computePhongLighting(normal,
+                                            lamp.light.subtract(target.getSubVector(0, 3)), eye.subtract(target.getSubVector(0, 3)),
+                                            objectColor, eColor,
+                                            dColor, sColor,
+                                            ambientOcclusion, roughness,
+                                            metalness, ns);
+                                    //0.1, 1,
+                                    //1, ns);
+                                    color1 = new Color(Math.min(255, buf.getRed() + color1.getRed()),
+                                            Math.min(255, buf.getGreen() + color1.getGreen()),
+                                            Math.min(255, buf.getBlue() + color1.getBlue()));
+                                }
+                            }
+                            else{
                                 Color buf = computePhongLighting(normal,
-                                        lamp.light.subtract(target.getSubVector(0, 3)), eye.subtract(target.getSubVector(0, 3)),
+                                        normal, eye.subtract(target.getSubVector(0, 3)),
                                         objectColor, eColor,
                                         dColor, sColor,
-                                        0.1, 1,
-                                        specularCoef, ns);
+                                        ambientOcclusion, roughness,
+                                        metalness, ns);
+                                //0.1, 1,
+                                //1, ns);
                                 color1 = new Color(Math.min(255, buf.getRed() + color1.getRed()),
                                         Math.min(255, buf.getGreen() + color1.getGreen()),
                                         Math.min(255, buf.getBlue() + color1.getBlue()));
                             }
                             image.setRGB(x, y, color1.getRGB());
-                        }
+/*                        }
                         else{
                             image.setRGB(x, y, objectColor.getRGB());
-                        }
+                        }*/
                     }
                 }
             }

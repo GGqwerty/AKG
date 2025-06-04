@@ -1,6 +1,7 @@
 package akg.view;
 
 import akg.model.canvas.CanvasElement;
+import akg.model.cubemap.CubeMap;
 import akg.model.light.ColorCalculate;
 import akg.model.obj.Lamp;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -28,6 +29,8 @@ public class Canvas extends JPanel {
 
     protected RealVector mainTarget = new ArrayRealVector(new double[]{0,0,0});
 
+    protected CubeMap cubeMap = null;
+
     protected CanvasElement choosenElement;
 
     protected void setBackGroundColor(Color color){
@@ -54,6 +57,21 @@ public class Canvas extends JPanel {
         choosenElement=c;
         if(addElementCallback!=null)
             addElementCallback.accept(choosenElement.drawMode);
+        c.cubeMap=cubeMap;
+    }
+
+    public void setCubeMap(CubeMap cubeMap){
+        this.cubeMap=cubeMap;
+        if(cubeMap!=null) {
+            cubeMap.eye = mainEye;
+            cubeMap.target = mainTarget;
+            cubeMap.up = mainUp;
+            cubeMap.eyePolar=mainEyePolar;
+        }
+        for(CanvasElement element: elements)
+        {
+            element.cubeMap=cubeMap;
+        }
     }
 
     {
@@ -199,6 +217,9 @@ public class Canvas extends JPanel {
             {
                 image.setRGB(i, j, backGroundColor.getRGB());
             }
+        }
+        if(cubeMap!=null) {
+            cubeMap.drawMap(image);
         }
         /*for(CanvasElement e: elements)
         {

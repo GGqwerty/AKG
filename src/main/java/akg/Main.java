@@ -13,7 +13,8 @@ public class Main {
     public static void main(String[] args){
         //String path = "D:\\АКГ\\Лаба 1\\escandalosos.obj";
         //String path = "D:\\АКГ\\Лаба 1\\blank_body.obj";
-        String path = "D:\\АКГ\\Лаба 1\\cude\\cube.obj";
+        //String path = "D:\\АКГ\\Лаба 1\\cude\\cube.obj";
+        String path = "D:\\АКГ\\Лаба 1\\Robot Steampunk\\robot_steampunk.obj";
         //String path = "D:\\АКГ\\Лаба 1\\fem.obj";
         //String path = "D:\\АКГ\\Лаба 1\\model.obj";
         ObjData o = ObjParser.parseObjFile(path);

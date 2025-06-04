@@ -17,7 +17,11 @@ public class ToolBar extends JPanel {
 
     public JButton chooseBackgroundColorButton = new JButton("Выбрать цвет фона");
 
+    public JButton chooseCubeMapButton = new JButton("Выбрать cube map");
+
     public JFileChooser fileChooser = new JFileChooser("..");
+
+    public JFileChooser directoryChooser = new JFileChooser("..");
 
     public JComboBox<CanvasElement.DrawMode> modes = new JComboBox<>(CanvasElement.DrawMode.values());
 
@@ -29,9 +33,12 @@ public class ToolBar extends JPanel {
 
     public Consumer<CanvasElement.DrawMode> modesChooserBack;
 
+    public Consumer<File> directoryChooserBack;
+
     public Color color;
 
     public ToolBar(Color c){
+        directoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         color=c;
         setLayout(new FlowLayout(FlowLayout.LEFT));
         setBackground(Color.LIGHT_GRAY);
@@ -83,6 +90,21 @@ public class ToolBar extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 if(modesChooserBack!=null)
                     modesChooserBack.accept((CanvasElement.DrawMode)modes.getSelectedItem());
+            }
+        });
+
+        add(chooseCubeMapButton);
+        chooseCubeMapButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int returnValue = directoryChooser.showOpenDialog(null);
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    {
+                        File selectedFile = directoryChooser.getSelectedFile();
+                        if(directoryChooserBack!=null)
+                            directoryChooserBack.accept(selectedFile);
+                    }
+                }
             }
         });
     }

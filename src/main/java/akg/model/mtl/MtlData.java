@@ -31,6 +31,11 @@ public class MtlData {
         public BufferedImage map_Kd;
         public BufferedImage map_Ke;
         public BufferedImage map_Ks;
+        public BufferedImage map_Ns;
         public BufferedImage map_Bump;
+        public BufferedImage map_Pm;
+        public BufferedImage map_Pr;
+        public BufferedImage map_Pao;
+        public BufferedImage map_MRAO;
     }
 }

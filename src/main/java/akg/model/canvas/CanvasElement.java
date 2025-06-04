@@ -1,5 +1,6 @@
 package akg.model.canvas;
 
+import akg.model.cubemap.CubeMap;
 import akg.model.obj.Lamp;
 import org.apache.commons.math3.linear.RealVector;
 
@@ -28,6 +29,8 @@ public abstract class CanvasElement {
      public RealVector translation;
 
      public int color;
+
+     public CubeMap cubeMap=null;
 
      public double ambientCoef = 0.1;
      public double diffuseCoef = 1;
